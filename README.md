@@ -31,3 +31,35 @@ Health Score =
 VAR AvgDeltaPct = ( CaloriesDeltaPct + HeartRateDeltaPct + StepsDeltaPct + ExerciseSessionsDeltaPct ) / 4
 VAR Result = IF( ConditionShow , 1 - ( AvgDeltaPct / 2 ) )
 RETURN Result
+
+
+2. Time Intelligence (Rolling Period)
+The dashboard calculates averages over a specific window using DATESBETWEEN to ensure the KPIs are always relevant to the current month:
+
+Avg Daily Steps over Selected Period = 
+VAR Result = 
+    CALCULATE(
+        AVERAGE(fctFitnessStats[Steps]),
+        DATESBETWEEN(dimDate[Date], MaxDate - [Calculation Period] - 1, MaxDate)
+    )
+RETURN Result
+
+🛠️ Tools Used
+Power BI Desktop: Dashboard design and data modeling.
+
+DAX (Data Analysis Expressions): Complex measures for health scoring and UI logic.
+
+Power Query (M): Data transformation and Base64 image partitioning.
+
+📂 How to Use
+Download the .pbix file from this repository.
+
+Open it in Power BI Desktop.
+
+Use the slicers to navigate through different date ranges.
+
+(Optional) Check the DAX folder in this repo to see the full code for all measures.
+
+Developed by Pradeep Mali Senior MIS Executive | Power BI & Data Analytics Enthusiast
+
+
