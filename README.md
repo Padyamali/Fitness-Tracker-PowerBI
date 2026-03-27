@@ -7,8 +7,8 @@ This project is a high-performance **Power BI Dashboard** designed to function l
 ---
 
 ## 🖥️ Dashboard Preview
-![Fitness Tracker Dashboard](dashboard_preview.png)
-*Place your main homepage screenshot here by uploading it to your repository and updating the filename above.*
+![Fitness Tracker Dashboard]<img width="574" height="341" alt="image" src="https://github.com/user-attachments/assets/5d4623e4-5955-4c7f-8a81-b4ea7eb3d2fc" />
+
 
 ---
 
