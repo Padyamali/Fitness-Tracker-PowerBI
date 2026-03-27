@@ -36,7 +36,8 @@ RETURN Result
 2. Time Intelligence (Rolling Period)
 The dashboard calculates averages over a specific window using DATESBETWEEN to ensure the KPIs are always relevant to the current month:
 
-```Avg Daily Steps over Selected Period = 
+```dac
+Avg Daily Steps over Selected Period = 
 VAR Result = 
     CALCULATE(
         AVERAGE(fctFitnessStats[Steps]),
