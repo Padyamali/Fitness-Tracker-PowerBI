@@ -1,6 +1,6 @@
-/* -------------------------------------------------------------------------
-   01. CONSTANTS & CONFIGURATION
-   ------------------------------------------------------------------------- */
+/*******************************************************************************
+ * 01. CONSTANTS & CONFIGURATION
+ *******************************************************************************/
 
 // Static reference date for the dashboard
 measure Today = DATE(2022, 6, 28)
@@ -9,9 +9,9 @@ measure Today = DATE(2022, 6, 28)
 measure 'Calculation Period' = 30 
 
 
-/* -------------------------------------------------------------------------
-   02. CORE METRICS (Simple Aggregations)
-   ------------------------------------------------------------------------- */
+/*******************************************************************************
+ * 02. CORE METRICS (Simple Aggregations)
+ *******************************************************************************/
 
 measure 'Avg Heart Rate' = AVERAGE(fctFitnessStats[Heart Rate])
 
@@ -24,9 +24,9 @@ measure 'Avg Calories' = AVERAGE(fctFitnessStats[Calories])
 measure 'Total Exercise Sessions' = SUM(fctFitnessStats[Exercise Session])
 
 
-/* -------------------------------------------------------------------------
-   03. USER TARGETS (Dynamic values from User Dimension)
-   ------------------------------------------------------------------------- */
+/*******************************************************************************
+ * 03. USER TARGETS (Dynamic values from User Dimension)
+ *******************************************************************************/
 
 measure 'Avg Heart Rate - Target Min' = SELECTEDVALUE(dimUser[Heart Rate Target Min])
 
@@ -45,9 +45,9 @@ measure 'Total Exercise Sessions - Target Min' = SELECTEDVALUE(dimUser[Exercise 
 measure 'Total Exercise Sessions - Target Max' = SELECTEDVALUE(dimUser[Exercise Sessions (monthly) Target Max])
 
 
-/* -------------------------------------------------------------------------
-   04. CHART & AXIS FORMATTING (Ranges for Visuals)
-   ------------------------------------------------------------------------- */
+/*******************************************************************************
+ * 04. CHART & AXIS FORMATTING (Visual Support Measures)
+ *******************************************************************************/
 
 measure 'Avg Heart Range' = [Avg Heart Rate - Target Max] - [Avg Heart Rate - Target Min]
 
@@ -66,9 +66,9 @@ measure 'Total Exercise Sessions Range' = [Total Exercise Sessions - Target Max]
 measure 'Total Exercise Sessions - Axis Fill' = 10
 
 
-/* -------------------------------------------------------------------------
-   05. ROLLING PERIOD LOGIC (Time Intelligence)
-   ------------------------------------------------------------------------- */
+/*******************************************************************************
+ * 05. ROLLING PERIOD LOGIC (Time Intelligence)
+ *******************************************************************************/
 
 measure 'Avg Heart Rate over Selected Period' = 
     VAR MaxDate = IF(ISFILTERED(dimDate), MAX(dimDate[Date]), [Today])
@@ -109,36 +109,32 @@ measure 'Total Exercise Sessions over Selected Period' =
     RETURN Result
 
 
-/* -------------------------------------------------------------------------
-   06. HEALTH SCORE ALGORITHM
-   ------------------------------------------------------------------------- */
+/*******************************************************************************
+ * 06. HEALTH SCORE ALGORITHM (Proprietary Scoring)
+ *******************************************************************************/
 
 measure 'Health Score' = 
-    // Calories Logic
+    // Logic: Absolute deviation from target midpoint normalized as %
     VAR CaloriesTarget = ([Avg Daily Calories - Target Max] + [Avg Daily Calories - Target Min]) / 2
     VAR CaloriesActual = [Avg Daily Calories over Selected Period]
     VAR CaloriesDelta = ABS(CaloriesActual - CaloriesTarget)
     VAR CaloriesDeltaPct = DIVIDE(CaloriesDelta, CaloriesTarget)
      
-    // Heart Rate Logic
     VAR HeartRateTarget = ([Avg Heart Rate - Target Max] + [Avg Heart Rate - Target Min]) / 2
     VAR HeartRateActual = [Avg Heart Rate over Selected Period]
     VAR HeartRateDelta = ABS(HeartRateActual - HeartRateTarget)
     VAR HeartRateDeltaPct = DIVIDE(HeartRateDelta, HeartRateTarget)
      
-    // Steps Logic
     VAR StepsTarget = ([Avg Daily Steps - Target Max] + [Avg Daily Steps - Target Min]) / 2
     VAR StepsActual = [Avg Daily Steps over Selected Period]
     VAR StepsDelta = ABS(StepsActual - StepsTarget)
     VAR StepsDeltaPct = DIVIDE(StepsDelta, StepsTarget)
      
-    // Exercise Sessions Logic
     VAR ExerciseSessionsTarget = ([Total Exercise Sessions - Target Max] + [Total Exercise Sessions - Target Min]) / 2
     VAR ExerciseSessionsActual = [Total Exercise Sessions over Selected Period]
     VAR ExerciseSessionsDelta = ABS(ExerciseSessionsActual - ExerciseSessionsTarget)
     VAR ExerciseSessionsDeltaPct = DIVIDE(ExerciseSessionsDelta, ExerciseSessionsTarget)
      
-    // Final Weighted Result
     VAR AvgDeltaPct = (CaloriesDeltaPct + HeartRateDeltaPct + StepsDeltaPct + ExerciseSessionsDeltaPct) / 4
     VAR ConditionShow = MAX(dimDate[Date]) <= [Today] || NOT ISFILTERED(dimDate)
     VAR Result = IF(ConditionShow, 1 - (AvgDeltaPct / 2))
@@ -147,11 +143,11 @@ measure 'Health Score' =
 measure 'Health Score - Fill to 100' = 1 - [Health Score]
 
 
-/* -------------------------------------------------------------------------
-   07. UI & PERSONALIZATION
-   ------------------------------------------------------------------------- */
+/*******************************************************************************
+ * 07. UI & PERSONALIZATION (User Experience Enhancement)
+ *******************************************************************************/
 
-// Dynamic Greeting based on time of day
+// Dynamic Greeting logic
 measure 'Welcome Text' = 
     VAR Hour = HOUR(NOW())
     VAR Greeting = 
@@ -164,7 +160,7 @@ measure 'Welcome Text' =
         )
     RETURN Greeting & " " & SELECTEDVALUE(dimUser[First Name])
 
-// Reconstructs Base64 Image string from partitioned table
+// Base64 Image reconstruction from Image Table
 measure DynamicPhoto = 
     "data:image/png;base64, " & 
     CONCATENATEX(
